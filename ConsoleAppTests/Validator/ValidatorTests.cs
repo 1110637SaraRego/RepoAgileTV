@@ -1,15 +1,17 @@
 using CandidateTesting.SaraRego.ConsoleApp.Business.LogTreatment.Interfaces;
 using CandidateTesting.SaraRego.ConsoleApp.Business.ReadMenu.Interface;
 using CandidateTesting.SaraRego.ConsoleApp.Business.Validator;
+using CandidateTesting.SaraRego.ConsoleApp.Business.Validator.Interface;
 using Moq;
 
 namespace CandidateTesting.SaraRego.ConsoleAppTests
 {
     public class ValidatorTests
     {
-        private Validator _validator;
+        private MessageValidator _validator;
         private Mock<ILogProcessor> _logProcessorMock;
         private Mock<IReadMenu> _readMenuMock;
+        private Mock<IErrorValidator> _errorValidatorMock;
 
         string inputValue = "convert http://example.com/log.txt ./local/file.txt";
 
@@ -17,8 +19,9 @@ namespace CandidateTesting.SaraRego.ConsoleAppTests
         {
             _logProcessorMock = new Mock<ILogProcessor>();
             _readMenuMock = new Mock<IReadMenu>();
+            _errorValidatorMock = new Mock<IErrorValidator>();
 
-            _validator = new Validator(_logProcessorMock.Object, _readMenuMock.Object);
+            _validator = new MessageValidator(_logProcessorMock.Object, _readMenuMock.Object, _errorValidatorMock.Object);
         }
 
         [Theory]
@@ -29,10 +32,12 @@ namespace CandidateTesting.SaraRego.ConsoleAppTests
             // Arrange
             var sourceUrl = inputValue.Split(" ")[1];
             var targetPath = inputValue.Split(" ")[2];
+            var expectedError = 0;
 
             if (!greenPath)
             {
                 inputValue = inputValue.Replace("convert ", ""); //No "convert" command so it fails validation
+                expectedError = 1;
             }
 
             // Act
@@ -40,7 +45,8 @@ namespace CandidateTesting.SaraRego.ConsoleAppTests
 
             // Assert
             _logProcessorMock.Verify(mock => mock.ProcessLog(sourceUrl, targetPath), Times.Exactly(expectedTimes));
-            _readMenuMock.Verify(mock => mock.ReadInput(), Times.Once);
+            _readMenuMock.Verify(mock => mock.ReadInput(), Times.Exactly(expectedTimes));
+            _errorValidatorMock.Verify(mock => mock.ErrorCounter(It.IsAny<string>()), Times.Exactly(expectedError));
         }
 
         [Fact]
@@ -56,8 +62,9 @@ namespace CandidateTesting.SaraRego.ConsoleAppTests
             }
 
             // Assert
-            _readMenuMock.Verify(mock => mock.ExitProgram(), Times.Once);
+            _readMenuMock.Verify(mock => mock.ExitProgram(), Times.Never);
             _logProcessorMock.Verify(mock => mock.ProcessLog(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            _errorValidatorMock.Verify(mock => mock.ErrorCounter(It.IsAny<string>()), Times.Exactly(4));
         }
     }
 }

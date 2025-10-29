@@ -9,15 +9,15 @@ namespace CandidateTesting.SaraRego.ConsoleAppTests
     {
         private ReadMenu readMenu;
         private Mock<IHost> _hostMock;
-        private Mock<IValidator> _validator;
+        private Mock<IMessageValidator> _validator;
 
         string inputValue = "convert http://example.com/log.txt ./local/file.txt";
 
         public ReadMenuTests()
         {
             _hostMock = new Mock<IHost>();
-            _validator = new Mock<IValidator>();
-            _hostMock.Setup(mock => mock.Services.GetService(typeof(IValidator))).Returns(_validator.Object);
+            _validator = new Mock<IMessageValidator>();
+            _hostMock.Setup(mock => mock.Services.GetService(typeof(IMessageValidator))).Returns(_validator.Object);
 
             readMenu = new ReadMenu(_hostMock.Object);
         }

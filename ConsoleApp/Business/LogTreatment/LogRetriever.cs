@@ -6,14 +6,14 @@ namespace CandidateTesting.SaraRego.ConsoleApp.Business.LogTreatment
     public class LogRetriever : ILogRetriever
     {
         private HttpClient _client;
-        private IValidator _validator;
+        private IErrorValidator _errorValidator;
 
         private string errorMessage = "\nError retrieving the log file.\nPlease try a different url path.";
 
-        public LogRetriever(HttpClient client, IValidator validator)
+        public LogRetriever(HttpClient client, IErrorValidator errorValidator)
         {
             _client = client;
-            _validator = validator;
+            _errorValidator = errorValidator;
         }
 
         public string RetrieveLog(string urlPath)
@@ -44,7 +44,7 @@ namespace CandidateTesting.SaraRego.ConsoleApp.Business.LogTreatment
 
         private void ErrorRetrieveLog()
         {
-            _validator.ErrorValidator(errorMessage);
+            _errorValidator.ErrorCounter(errorMessage);
         }
     }
 }

@@ -34,7 +34,7 @@ namespace CandidateTesting.SaraRego.ConsoleApp.Business.ReadMenu
                 ExitProgram();
             }
 
-            var validator = _host!.Services.GetRequiredService<IValidator>();
+            var validator = _host!.Services.GetRequiredService<IMessageValidator>();
             validator!.Validate(input);
         }
 

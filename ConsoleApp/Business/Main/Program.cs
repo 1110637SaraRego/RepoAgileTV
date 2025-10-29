@@ -18,7 +18,8 @@ namespace CandidateTesting.SaraRego.ConsoleApp.Business.Main
             {
                 services.AddHttpClient();
                 services.AddSingleton<IFileWrapper, FileWrapper>();
-                services.AddSingleton<IValidator, Validator.Validator>();
+                services.AddSingleton<IMessageValidator, Validator.MessageValidator>();
+                services.AddSingleton<IErrorValidator, Validator.ErrorValidator>();
                 services.AddSingleton<ILogProcessor, LogTreatment.LogProcessor>();
                 services.AddSingleton<ILogConverter, LogTreatment.LogConverter>();
                 services.AddSingleton<ILogRetriever, LogTreatment.LogRetriever>();

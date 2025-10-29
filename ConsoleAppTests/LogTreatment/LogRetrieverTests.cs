@@ -9,15 +9,17 @@ namespace CandidateTesting.SaraRego.ConsoleAppTests
     public class LogRetrieverTests
     {
         private LogRetriever _logRetriever;
-        private Mock<IValidator> _validator;
+        private Mock<IErrorValidator> _errorValidator;
         private Mock<HttpMessageHandler> _httpMessageHandlerMock;
 
         string inputUrl = "http://example.com/log.txt";
 
         public LogRetrieverTests()
         {
-            _validator = new Mock<IValidator>();
+            _errorValidator = new Mock<IErrorValidator>();
             _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
+
+            _logRetriever = new LogRetriever(new HttpClient(_httpMessageHandlerMock.Object), _errorValidator.Object);
         }
 
         [Fact]
@@ -30,7 +32,7 @@ namespace CandidateTesting.SaraRego.ConsoleAppTests
             var result = _logRetriever.RetrieveLog(inputUrl);
 
             // Assert
-            _validator.Verify(mock => mock.ErrorValidator(It.IsAny<string>()), Times.Once);
+            _errorValidator.Verify(mock => mock.ErrorCounter(It.IsAny<string>()), Times.Once);
             Assert.Equal(string.Empty, result);
         }
 
@@ -45,7 +47,7 @@ namespace CandidateTesting.SaraRego.ConsoleAppTests
             var result = _logRetriever.RetrieveLog(inputUrl);
 
             // Assert
-            _validator.Verify(mock => mock.ErrorValidator(It.IsAny<string>()), Times.Never);
+            _errorValidator.Verify(mock => mock.ErrorCounter(It.IsAny<string>()), Times.Never);
             Assert.Equal(logContent, result);
         }
 
@@ -73,30 +75,7 @@ namespace CandidateTesting.SaraRego.ConsoleAppTests
                 BaseAddress = new Uri("http://example.com/"),
             };
 
-            _logRetriever = new LogRetriever(httpClient, _validator.Object);
-        }
-
-        private void MockHttpClientException(string url)
-        {
-            _httpMessageHandlerMock
-               .Protected()
-               .Setup<Task<HttpResponseMessage>>(
-                  "SendAsync",
-                  ItExpr.Is<HttpRequestMessage>(req =>
-                     req.Method == HttpMethod.Get
-                     && req.RequestUri == new Uri(url)
-                  ),
-                  ItExpr.IsAny<CancellationToken>()
-               )
-               .ThrowsAsync(new AggregateException())
-               .Verifiable();
-
-            var httpClient = new HttpClient(_httpMessageHandlerMock.Object)
-            {
-                BaseAddress = new Uri("http://example.com/"),
-            };
-
-            _logRetriever = new LogRetriever(httpClient, _validator.Object);
+            _logRetriever = new LogRetriever(httpClient, _errorValidator.Object);
         }
     }
 }

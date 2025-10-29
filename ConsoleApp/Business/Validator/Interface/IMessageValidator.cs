@@ -1,9 +1,7 @@
 ﻿namespace CandidateTesting.SaraRego.ConsoleApp.Business.Validator.Interface
 {
-    public interface IValidator
+    public interface IMessageValidator
     {
         void Validate(string? inputvalue);
-
-        void ErrorValidator(string message);
     }
 }
